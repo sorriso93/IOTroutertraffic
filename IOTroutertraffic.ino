@@ -27,7 +27,6 @@ extern "C" {                      // needed to set hostname
 
 #include <ArduinoJson.h>
 #include "preferences.h"
-#include "display_mgm_espi.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266Ping.h>
 #include <WiFiClient.h> 
@@ -38,14 +37,12 @@ extern "C" {                      // needed to set hostname
 void setup() 
 {
   Serial.begin(115200);
-  
   #ifdef MQTT_Y
    //DEBUG_PRINTLN ("SETUP MQTT");
    client.setServer(mqtt_server, 1883); //per MQTT
    //#ifndef publisher_MQTT
    client.setCallback(callback); //per MQTT
   #endif //per MQTT
-  
   setup_display(); // DISPLAY
   cancella_display(); 
   accendi_backlight();
@@ -74,7 +71,7 @@ void setup()
   {
     //No time via NTP I reset
     cancella_display();
-    DEBUG_PRINTLN("Non ho orario, resetto");
+    DEBUG_PRINTLN("No time, reset");
     scrivi_display_riga_colore ("NO\r\nNETWORK\r\nTIME",16, TFT_GREEN);
     delay(2000);
     ESP.reset(); // resetto se non riceve l'orario da server NTP
@@ -161,9 +158,9 @@ void loop()
 {
    String temp_str;
    double bytes_r1, bytes_s1, bytes_r2, bytes_s2; 
-   long int kbytes_r_xfreq, kbytes_s_xfreq;
+//   long int kbytes_r_xfreq, kbytes_s_xfreq;
+//   int avg_time_ms = 0;
    int readings = 0;
-   int avg_time_ms = 0;
    
    ArduinoOTA.handle(); // per OTA
    
@@ -197,7 +194,6 @@ void loop()
      {
         Serial.println("Error in WiFi connection");   
      }
-  
      // converts in kbytes per second data collected
      kbytes_r_xfreq = (long int) (bytes_r2 - bytes_r1)/1024;  //non 1024 boh!
      kbytes_s_xfreq = (long int) (bytes_s2 - bytes_s1)/1024;
@@ -215,27 +211,23 @@ void loop()
       //Calls update routine to publish MQTT data on queue
       MQTT_update();
      #endif
+     // max & min update
+     if (max_speed_r < kbytes_r_xfreq)
+       max_speed_r = kbytes_r_xfreq;
+     if (max_speed_s < kbytes_s_xfreq) 
+       max_speed_s = kbytes_s_xfreq;
+     disegna (kbytes_r_xfreq, kbytes_s_xfreq, avg_time_ms); //kbytes per second on lcd screen
    #else
-     #ifdef MQTT_Y
-      //Reads JSON data received from MQTT queue
-      /*kbytes_r_xfreq = (stampa_MQTT[1].substring(stampa_MQTT[1].indexOf("Kb-received: "),stampa_MQTT[1].length+1)).toInt;
-      kbytes_s_xfreq = (stampa_MQTT[2].substring(stampa_MQTT[2].indexOf("Kb-sent: "),stampa_MQTT[2].length+1)).toInt; */
-      kbytes_r_xfreq = stampa_MQTT["Kbsec_rec"];
-      kbytes_s_xfreq = stampa_MQTT["Kbsec_sent"];
-      avg_time_ms = stampa_MQTT["ping"];
-     #endif
+    //DEBUG_PRINTLN("subscriber MQTT");
+    if (!client.connected())
+    {
+     reconnect(); // connects to MQTT queue
+    }
+    client.loop();
    #endif
 
-   // max & min update
-   if (max_speed_r < kbytes_r_xfreq)
-     max_speed_r = kbytes_r_xfreq;
-   if (max_speed_s < kbytes_s_xfreq) 
-     max_speed_s = kbytes_s_xfreq;
-     
-   disegna (kbytes_r_xfreq, kbytes_s_xfreq, avg_time_ms); //kbytes per second on lcd screen
    //scrivi_ora();
-   
-   DEBUG_PRINTLN("kbytes received per "+ String(freq_request) + " millisecond >>> " + String(kbytes_r_xfreq));
-   DEBUG_PRINTLN("kbytes sent per "+ String(freq_request) + " millisecond >>> " + String(kbytes_s_xfreq));
-   DEBUG_PRINTLN("------ Ping "+String(ping_site)+": "+String(avg_time_ms));
+   //DEBUG_PRINTLN("kbytes received per "+ String(freq_request) + " millisecond >>> " + String(kbytes_r_xfreq));
+   //DEBUG_PRINTLN("kbytes sent per "+ String(freq_request) + " millisecond >>> " + String(kbytes_s_xfreq));
+   //DEBUG_PRINTLN("------ Ping "+String(ping_site)+": "+String(avg_time_ms));
 }

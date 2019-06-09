@@ -4,9 +4,9 @@
 // http://192.168.0.1:49152/gateicfgSCPD.xml
 
 #define debug_serial //comment out if not debugging
-#define name_sensor_default "RTraffic" // BOARD NAME -- HOSTNAME
+#define name_sensor_default "RTrafficSub" // BOARD NAME -- HOSTNAME
 #define MQTT_Y //use MQTT (publisher or subscriber), comment it out if no MQTT is used
-#define publisher // publisher or subscriber of MQTT, comment it out if no MQTT is used or if you want it as subscriber
+//#define publisher // publisher or subscriber of MQTT, comment it out if no MQTT is used or if you want it as subscriber
 
 //BOARD NAME AND WIF-OTA CONFIGURATION by default
 #define password_AP "passwordota"
@@ -26,6 +26,10 @@ int max_upload_rate = 800; // max upload rate of my internet connection
   #define MQTT_QUEUE "router_stats" //  MQTT queue name
 #endif
 
+long int kbytes_r_xfreq, kbytes_s_xfreq = 0; //global variables with data to bee displayed
+int avg_time_ms = 0; //global variables with data to bee displayed
+unsigned long max_speed_r, max_speed_s = 0;
+
 //---------- UPNP IDG configuration --- Internet gateway
 //actions&services available on my router
 String gettotalbytesreceived = "GetTotalBytesReceived";
@@ -39,8 +43,6 @@ String packetreceivedresult = "NewTotalPacketsReceived";
 String getcommonlinkproperties = "GetCommonLinkProperties";
 String linkpropertiesresult = "NewPhysicalLinkStatus";
 String _service = "\"urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1\"";
-
-unsigned long max_speed_r, max_speed_s = 0;
 
 // DAYLIGHT saving routine
 #include <NTPClient.h>
@@ -101,14 +103,17 @@ String twoDigits(int digits);
   void callback(char* topic, byte* payload, unsigned int length);
   void MQTT_update (); //MQTT Publish
   void reconnect(); //MQTT reconnect
+#endif
 
+#include "display_mgm_espi.h"
+
+#ifdef MQTT_Y 
   void callback(char* topic, byte* payload, unsigned int length) 
   {
-    
    #ifndef publisher
-    char messaggio[1024];
+    String messaggio;
+    char msg[1024];
     int i;
-  
     for (int i = 0; i < length; i++) 
     {
       messaggio += (char)payload[i];
@@ -116,12 +121,26 @@ String twoDigits(int digits);
     DEBUG_PRINT("MQTT Message arrived [");
     DEBUG_PRINT(messaggio);
     DEBUG_PRINTLN("] ");
-    stampa_MQTT = buffer_MQTT.parseObject(messaggio); //only deserialization, assignement to variables to graph data is made in main code
+    messaggio.toCharArray(msg,1024);
+    JsonVariant read_MQTT = buffer_MQTT.parseObject(msg); //only deserialization, assignement to variables to graph data is made in main code
     if (!stampa_MQTT.success())
     {
       DEBUG_PRINT("Json parsing error"); //additional things?
       return;
     }
+    else
+    {
+      kbytes_r_xfreq = read_MQTT[String("Kbsec_rec")];
+      kbytes_s_xfreq = read_MQTT[String("Kbsec_sent")];
+      avg_time_ms = read_MQTT[String("ping")];
+      DEBUG_PRINTLN("kbsec_r = "+String(kbytes_r_xfreq)+"kbsec_s = "+String(kbytes_s_xfreq)+"avg_ping = "+String(avg_time_ms));
+    }
+    // max & min update
+    if (max_speed_r < kbytes_r_xfreq)
+      max_speed_r = kbytes_r_xfreq;
+    if (max_speed_s < kbytes_s_xfreq) 
+      max_speed_s = kbytes_s_xfreq;
+    disegna (kbytes_r_xfreq, kbytes_s_xfreq, avg_time_ms); //kbytes per second on lcd screen
    #endif
   }
   

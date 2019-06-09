@@ -120,11 +120,11 @@ int scan = 1;
   
   void drawWifiQuality() 
   {
-    tft.fillRect(285,0,320,8,BLACK);
+    tft.fillRect(265,0,320,8,BLACK);
     
     int8_t quality = getWifiQuality();
     tft.setTextSize(0); 
-    tft.setCursor(285,0,1); 
+    tft.setCursor(280,0,1); 
     tft.setTextColor(TFT_WHITE);
     tft.print(String(quality) + "%"); //  wifi signal quality
     
@@ -132,12 +132,12 @@ int scan = 1;
     #ifdef MQTT_Y
     if (collegato_MQTT == 1)
      { 
-      tft.setCursor(270,0);
+      tft.setCursor(265,0);
       tft.print("Q");
      }
      else
      {
-      tft.setCursor(270,0);
+      tft.setCursor(265,0);
       tft.print("X");
      }
     #endif
