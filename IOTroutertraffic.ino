@@ -46,13 +46,13 @@ void setup()
   setup_display(); // DISPLAY
   cancella_display(); 
   accendi_backlight();
-  scrivi_display_riga_colore ("CONNECT TO WIFI\r\n"+String(name_sensor_default),32, TFT_BLACK);
+  scrivi_display_riga_colore ("  CONNECT TO WIFI\r\n"+String(name_sensor_default),32, TFT_BLACK);
   WiFiManager wifiManager;
   wifiManager.autoConnect(name_sensor_default);
   
   setup_OTA_MAX();
   cancella_display();
-  scrivi_display_riga_colore ("IOT Traffic\r\n\r\n                by MAX",32,TFT_YELLOW);
+  scrivi_display_riga_colore ("  IOT Traffic\r\n\r\n                by MAX",32,TFT_YELLOW);
   delay(2000);
   cancella_display();
 
@@ -72,7 +72,7 @@ void setup()
     //No time via NTP I reset
     cancella_display();
     DEBUG_PRINTLN("No time, reset");
-    scrivi_display_riga_colore ("NO\r\nNETWORK\r\nTIME",16, TFT_GREEN);
+    scrivi_display_riga_colore (" NO\r\n NETWORK\r\n TIME",16, TFT_GREEN);
     delay(2000);
     ESP.reset(); // resetto se non riceve l'orario da server NTP
     delay(1000);

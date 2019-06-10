@@ -111,19 +111,23 @@ String twoDigits(int digits);
   void callback(char* topic, byte* payload, unsigned int length) 
   {
    #ifndef publisher
+    StaticJsonBuffer<1024> buffer2_MQTT;
+    //JsonObject& stampa_MQTT = buffer2_MQTT.createObject();
     String messaggio;
-    char msg[1024];
+    char msg[1024] = "";
+    JsonVariant read_MQTT;
+    
     int i;
     for (int i = 0; i < length; i++) 
     {
       messaggio += (char)payload[i];
     }
-    DEBUG_PRINT("MQTT Message arrived [");
+    DEBUG_PRINT("MQTT Message [");
     DEBUG_PRINT(messaggio);
     DEBUG_PRINTLN("] ");
     messaggio.toCharArray(msg,1024);
-    JsonVariant read_MQTT = buffer_MQTT.parseObject(msg); //only deserialization, assignement to variables to graph data is made in main code
-    if (!stampa_MQTT.success())
+    read_MQTT = buffer2_MQTT.parseObject(msg); //only deserialization, assignement to variables to graph data is made in main code
+    if (!read_MQTT.success())
     {
       DEBUG_PRINT("Json parsing error"); //additional things?
       return;
@@ -133,7 +137,7 @@ String twoDigits(int digits);
       kbytes_r_xfreq = read_MQTT[String("Kbsec_rec")];
       kbytes_s_xfreq = read_MQTT[String("Kbsec_sent")];
       avg_time_ms = read_MQTT[String("ping")];
-      DEBUG_PRINTLN("kbsec_r = "+String(kbytes_r_xfreq)+"kbsec_s = "+String(kbytes_s_xfreq)+"avg_ping = "+String(avg_time_ms));
+      DEBUG_PRINTLN("kbsec_r = "+String(kbytes_r_xfreq)+" kbsec_s = "+String(kbytes_s_xfreq)+" avg_ping = "+String(avg_time_ms));
     }
     // max & min update
     if (max_speed_r < kbytes_r_xfreq)
@@ -141,6 +145,7 @@ String twoDigits(int digits);
     if (max_speed_s < kbytes_s_xfreq) 
       max_speed_s = kbytes_s_xfreq;
     disegna (kbytes_r_xfreq, kbytes_s_xfreq, avg_time_ms); //kbytes per second on lcd screen
+    messaggio = "";
    #endif
   }
   

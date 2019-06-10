@@ -146,7 +146,7 @@ int scan = 1;
       for (int8_t j = 0; j < 2 * (i + 1); j++) 
       {
         if (quality > i * 25 || j == 0) {
-          tft.drawPixel(305 + 2 * i, 6 - j, TFT_WHITE);
+          tft.drawPixel(309 + 2 * i, 6 - j, TFT_WHITE);
         }
       }
     }
@@ -682,19 +682,19 @@ void disegna(long int received_speed, long int sent_speed, int avg_time_ms)
   Time =(Time *2) ;//timedelay compensation 
   double gx = 1, gy = 185, w = 210, h = 170;
 
-  if (millis() - runTime >= (Time*5000))
-  {
-    runTime=millis();
-    //tft.fillRect(0,gy-h,gx+w,gy,BLACK);
-    tft.fillRect(0,0,320,240,BLACK);
-    scan=1; ///resets X axis
-    x=scan;
-    max_speed_r=300; max_speed_s = 100;
-    graph_3=true;  /// add graphs affected by resetting screen
-    graph_1=true;  // radial meters are un affected 
-    graph_2=true;
-    graph_4=true;
-  }
+    if (millis() - runTime >= (Time*5000))
+    {
+      runTime=millis();
+      //tft.fillRect(0,gy-h,gx+w,gy,BLACK);
+      tft.fillRect(0,0,320,240,BLACK);
+      scan=1; ///resets X axis
+      x=scan;
+      max_speed_r=300; max_speed_s = 100;
+      graph_3=true;  /// add graphs affected by resetting screen
+      graph_1=true;  // radial meters are un affected 
+      graph_2=true;
+      graph_4=true;
+    }
   drawWifiQuality();
 
   //void Graph(TFT_eSPI &d, double x, double y, double gx, double gy, double w, double h, double xlo, double xhi, 
