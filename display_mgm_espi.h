@@ -209,7 +209,7 @@ int scan = 1;
     tft.setTextSize(dim_testo);
     tft.setTextColor(TFT_WHITE);
     tft.setTextFont(2);
-    tft.setRotation(1); //tft.getRotation()+3)
+    tft.setRotation(rotazione); //tft.getRotation()+3)
     //drawJpeg("/trenordlogo160.jpg", 0, 10);
     //drawJpeg("/fnm-treno.jpg", 0, 50);
    }

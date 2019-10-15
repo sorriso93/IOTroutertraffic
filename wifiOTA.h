@@ -13,6 +13,7 @@
 
 
 const char* pwd_OTA = password_AP;
+char host_name[15] = name_sensor_default;
 
 // --------------------------------------------------------
 // SETUP ROUTINE FOR OTA MANAGEMENT
@@ -23,7 +24,7 @@ void setup_OTA_MAX()
   // Port defaults to 8266 -- ArduinoOTA.setPort(8266);
   // Hostname defaults to esp8266-[ChipID]
   ArduinoOTA.setPort(8266);
-  ArduinoOTA.setHostname(name_sensor_default);
+  ArduinoOTA.setHostname(host_name);
   // No authentication by default
   ArduinoOTA.setPassword((const char *) pwd_OTA);
 

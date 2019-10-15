@@ -1,15 +1,17 @@
-// v.00 first version
-// api router
+// v.02 
+// api router tiscali HUAWEI
 // http://192.168.0.1:49152/gatedesc.xml
 // http://192.168.0.1:49152/gateicfgSCPD.xml
 
 #define debug_serial //comment out if not debugging
-#define name_sensor_default "RTrafficSub" // BOARD NAME -- HOSTNAME
+#define name_sensor_default "RTrafficPSALA" // BOARD NAME -- HOSTNAME
 #define MQTT_Y //use MQTT (publisher or subscriber), comment it out if no MQTT is used
-//#define publisher // publisher or subscriber of MQTT, comment it out if no MQTT is used or if you want it as subscriber
+#define publisher // publisher or subscriber of MQTT, comment it out if no MQTT is used or if you want it as subscriber
 
 //BOARD NAME AND WIF-OTA CONFIGURATION by default
 #define password_AP "passwordota"
+
+#define rotazione 1 //1 usb connector on the left, 3 usb connector on the right
 
 //Internet gateway router address and upnp call path
 String _ip = "http://192.168.0.1";
