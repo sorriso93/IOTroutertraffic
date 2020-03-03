@@ -1,17 +1,17 @@
-// v.02 
+// v.04
 // api router tiscali HUAWEI
 // http://192.168.0.1:49152/gatedesc.xml
 // http://192.168.0.1:49152/gateicfgSCPD.xml
 
-#define debug_serial //comment out if not debugging
+//#define debug_serial //comment out if not debugging
 #define name_sensor_default "RTrafficPSALA" // BOARD NAME -- HOSTNAME
 #define MQTT_Y //use MQTT (publisher or subscriber), comment it out if no MQTT is used
 #define publisher // publisher or subscriber of MQTT, comment it out if no MQTT is used or if you want it as subscriber
+#define rotazione 1 //1 usb connector on the left, 3 usb connector on the right
+#define influx //se attivo invia dati a influxdb
 
 //BOARD NAME AND WIF-OTA CONFIGURATION by default
 #define password_AP "passwordota"
-
-#define rotazione 1 //1 usb connector on the left, 3 usb connector on the right
 
 //Internet gateway router address and upnp call path
 String _ip = "http://192.168.0.1";
@@ -27,7 +27,13 @@ int max_upload_rate = 800; // max upload rate of my internet connection
   #define max_tentativi_MQTT 10 //10 times retry to connect to MQTT queue
   #define MQTT_QUEUE "router_stats" //  MQTT queue name
 #endif
-
+#ifdef influx
+  #define INFLUXDB_HOST "192.168.0.7"
+  #define INFLUXDB_USER "rtstat"
+  #define INFLUXDB_PASS "maxsoft"
+  #include <InfluxDb.h>
+  Influxdb db_influx(INFLUXDB_HOST);
+#endif
 long int kbytes_r_xfreq, kbytes_s_xfreq = 0; //global variables with data to bee displayed
 int avg_time_ms = 0; //global variables with data to bee displayed
 unsigned long max_speed_r, max_speed_s = 0;
@@ -88,7 +94,8 @@ String twoDigits(int digits);
 #ifdef debug_serial
  #define DEBUG_PRINT(x) Serial.print(x)
  #define DEBUG_PRINTLN(x) Serial.println(x)
-#elif defined(debug_serial)
+#endif
+#ifndef debug_serial
  #define DEBUG_PRINT(x) 
  #define DEBUG_PRINTLN(x) 
 #endif
